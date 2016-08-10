@@ -3,6 +3,7 @@
 import {
   Size,
   CellSize,
+  BoardWidth,
   BorderWidth,
   Color,
 } from './GlobalStyle';
@@ -14,6 +15,7 @@ import Touchable from './Touchable';
 export {
   Size,
   CellSize,
+  BoardWidth,
   BorderWidth,
   Color,
 

@@ -7,7 +7,9 @@ import {
 
 export const Size = Dimensions.get('window');
 
-export const CellSize = Math.floor(Size.width / 10);
+export const BoardWidth = Size.width;
+
+export const CellSize = Math.floor(BoardWidth / 10);
 
 export const BorderWidth = 3;
 

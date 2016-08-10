@@ -11,6 +11,7 @@ import {
 
 import {
   CellSize,
+  BoardWidth,
   BorderWidth,
 } from './GlobalStyle';
 
@@ -279,6 +280,7 @@ const styles = StyleSheet.create({
   boardContainer: {
     marginTop: 20,
     alignItems: 'center',
+    width: BoardWidth,
   },
   board: {
     flexDirection: 'row',

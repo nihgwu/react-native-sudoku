@@ -12,11 +12,10 @@ import {
 import {
   Size,
   CellSize,
+  BoardWidth,
   BorderWidth,
 } from './GlobalStyle';
 import Touchable from './Touchable';
-
-const BoardSize = Size.width - CellSize * 9 - BorderWidth * 8;
 
 const spring = {
   duration: 300,
@@ -30,8 +29,10 @@ const spring = {
   },
 };
 
+const Offset = (BoardWidth - CellSize * 9 - BorderWidth * 8) / 2;
+
 class StackCell extends Component {
-  left = Size.width / 9 * this.props.number + (Size.width / 9 - CellSize) / 2;
+  left = BoardWidth / 9 * this.props.number + (BoardWidth / 9 - CellSize) / 2;
   top = this.props.index
   state = {
     hide: false,
@@ -43,7 +44,7 @@ class StackCell extends Component {
     const x = index % 9;
     const y = (index - x) / 9;
     const gap = BorderWidth * 2;
-    const left = CellSize * x + gap * (Math.floor(x / 3) + 1) + BoardSize / 2;
+    const left = CellSize * x + gap * (Math.floor(x / 3) + 1) + Offset;
     const top = -20 - CellSize * (9 - y) - gap * (Math.floor((8 - y) / 3) + 1);
     LayoutAnimation.configureNext(spring);
     this.setState({ left, top });
