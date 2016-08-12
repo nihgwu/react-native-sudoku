@@ -27,7 +27,6 @@ class Cell extends Component {
     toggle: false,
     anim: new Animated.Value(0),
   }
-  rotating = false
 
   setHighlight(highlight) {
     this.setState({
@@ -68,8 +67,7 @@ class Cell extends Component {
   }
 
   animate() {
-    if (this.rotating) return;
-    this.rotating = true;
+    if (this.state.toggle) return;
     this.setState({
       toggle: true,
     }, () => {
@@ -82,7 +80,6 @@ class Cell extends Component {
         this.setState({
           toggle: false,
         });
-        this.rotating = false;
       });
     });
   }
