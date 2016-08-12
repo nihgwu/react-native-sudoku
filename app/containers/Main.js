@@ -7,6 +7,8 @@ import {
   StyleSheet,
   AppState,
   Platform,
+  Linking,
+  Share,
   Alert,
   Modal,
   Image,
@@ -154,9 +156,17 @@ class Main extends Component {
                 <Text style={[styles.recordText, styles.highlightText]} >正在加载中……</Text>
               }
             </View>
-            <Touchable style={styles.button} onPress={this.onCloseModal} >
-              <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/close.png')} />
-            </Touchable>
+            <View style={styles.footer} >
+              <Touchable style={styles.button} onPress={this.onShare} >
+                <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/share.png')} />
+              </Touchable>
+              <Touchable style={styles.button} onPress={this.onCloseModal} >
+                <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/close.png')} />
+              </Touchable>
+              <Touchable style={styles.button} onPress={this.onRate} >
+                <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/rate.png')} />
+              </Touchable>
+            </View>
           </View>
         </Modal>
       </View>
@@ -401,6 +411,33 @@ class Main extends Component {
       });
     });
   }
+
+  onShare = () => {
+    const url = Platform.OS == 'android' ?
+      'http://a.app.qq.com/o/simple.jsp?pkgname=com.liteneo.sudoku' :
+      'https://itunes.apple.com/cn/app/id1138612488?mt=8';
+    let message = '数独 - 重拾纯粹数独的乐趣';
+    if (Platform.OS == 'android') message = message + ' \n' + url;
+    Share.share({
+      url,
+      message,
+      title: '分享',
+    }, {
+      dialogTitle: '分享',
+    }).catch(error => {
+      Alert.alert('分享失败');
+    });
+  }
+
+  onRate = () => {
+    const link = Platform.OS == 'android' ?
+      'market://details?id=com.liteneo.sudoku' :
+      'itms-apps://itunes.apple.com/cn/app/id1138612488?mt=8';
+    Alert.alert('应用评价', '该应用为业余时间开发，您的好评是对我的最大支持', [
+      { text: '取消' },
+      { text: '确定', onPress: () => Linking.openURL(link) },
+    ]);
+  }
 }
 
 const styles = StyleSheet.create({
@@ -456,6 +493,11 @@ const styles = StyleSheet.create({
     fontSize: CellSize / 2,
     color: '#fff',
     opacity: 0.5,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
   },
   button: {
     padding: Size.height > 500 ? 20 : 10,
