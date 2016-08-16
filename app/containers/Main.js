@@ -413,9 +413,7 @@ class Main extends Component {
   }
 
   onShare = () => {
-    const url = Platform.OS == 'android' ?
-      'http://a.app.qq.com/o/simple.jsp?pkgname=com.liteneo.sudoku' :
-      'https://itunes.apple.com/cn/app/id1138612488?mt=8';
+    const url = 'http://a.app.qq.com/o/simple.jsp?pkgname=com.liteneo.sudoku';
     let message = '数独 - 重拾纯粹数独的乐趣';
     if (Platform.OS == 'android') message = message + ' \n' + url;
     Share.share({
