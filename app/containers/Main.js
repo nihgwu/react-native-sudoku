@@ -215,7 +215,7 @@ class Main extends Component {
     }
     if (!this.records.includes(elapsed)) {
       this.records.push(elapsed);
-      this.records.sort();
+      this.records.sort((a, b) => a - b);
       this.records = this.records.slice(0, 5);
       Store.set('records', this.records);
     }
