@@ -10,14 +10,15 @@ import {
 } from 'react-native';
 
 import AV from 'leancloud-storage';
+import RNLeanCloud from 'react-native-leancloud';
 
 import Main from './containers/Main';
 
 UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 
 AV.init({
-  appId: 'replace with your own appId',
-  appKey: 'replace with your own appKey'
+  appId: RNLeanCloud.appId,
+  appKey: RNLeanCloud.appKey,
 });
 
 class App extends Component {

@@ -24,6 +24,10 @@
 	<string>5</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LeanCloudAppId</key>
+	<string>your leancloud appId</string>
+	<key>LeanCloudAppKey</key>
+	<string>your leancloud appKey</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>

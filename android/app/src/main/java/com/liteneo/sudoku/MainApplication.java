@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
+import com.liteneo.RNLeanCloud.RNLeanCloudPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -26,6 +27,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new RNDeviceInfo(),
+          new RNLeanCloudPackage("your leancloud appId", "your leancloud appKey"),
           new MainReactPackage()
       );
     }
