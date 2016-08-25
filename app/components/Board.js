@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 
 import {
+  InteractionManager,
   LayoutAnimation,
   StyleSheet,
   Platform,
@@ -145,11 +146,15 @@ class Board extends Component {
       if (this.puzzle.filter(x => x != null).length == 81) {
         this.solved = true;
         this.cells[index].setHighlight(false);
-        this.animateAll();
         this.setState({
           index: -1,
         });
-        this.props.onFinish && this.props.onFinish();
+        InteractionManager.runAfterInteractions(() => {
+          this.animateAll();
+          InteractionManager.runAfterInteractions(() => {
+            this.props.onFinish && this.props.onFinish();
+          });
+        });
         return;
       }
       if (isNumber(this.hightlightNumber))
