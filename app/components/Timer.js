@@ -84,6 +84,10 @@ class Timer extends Component {
     });
   }
 
+  getElapsed() {
+    return this.state.elapsed;
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     if (nextState != this.state) {
       return true;
