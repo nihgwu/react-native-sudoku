@@ -194,13 +194,12 @@ class Main extends Component {
     ]);
   }
 
-  onFinish = async() => {
+  onFinish = () => {
     this.setState({
       playing: false,
     });
-    await Store.multiRemove('puzzle', 'solve', 'error', 'elapsed');
+    Store.multiRemove('puzzle', 'solve', 'error', 'elapsed');
     this.elapsed = null;
-    //this.error = 0;
     this.solve = null;
     this.fromStore = false;
     const elapsed = this.timer.stop();
@@ -210,7 +209,7 @@ class Main extends Component {
           { text: '知道了' },
           { text: '新游戏', onPress: this.onCreate },
         ]);
-      }, 1000);
+      }, 2000);
       return;
     }
     if (!this.records.includes(elapsed)) {
@@ -226,7 +225,7 @@ class Main extends Component {
         { text: '知道了' },
         { text: '新游戏', onPress: this.onCreate },
       ]);
-    }, 1000);
+    }, 2000);
   }
 
   onToggleEditing = () => {

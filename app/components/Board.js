@@ -149,11 +149,9 @@ class Board extends Component {
         this.setState({
           index: -1,
         });
+        this.props.onFinish && this.props.onFinish();
         InteractionManager.runAfterInteractions(() => {
           this.animateAll();
-          InteractionManager.runAfterInteractions(() => {
-            this.props.onFinish && this.props.onFinish();
-          });
         });
         return;
       }
