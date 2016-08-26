@@ -31,8 +31,9 @@ I've also developed an app in React Native for developers called [NeoReader](htt
 ## Build
 1. clone this repo
 2. `npm install`
-3. replace the LeanCloud account with your own own if you want play with the `Online Ranking`
-4. `react-native run-ios` or `react-native run-android`
+3. `react-native link`
+4. config your leancloud accout https://github.com/nihgwu/react-native-leancloud
+5. `react-native run-ios` or `react-native run-android`
 
 ## Plan
 1. different level
