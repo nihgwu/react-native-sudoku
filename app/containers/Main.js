@@ -522,6 +522,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   recordText: {
+    height: CellSize * 4 / 6,
     marginVertical: CellSize / 6,
     textAlign: 'center',
     color: '#fff',
