@@ -18,6 +18,7 @@ import {
 
 import DeviceInfo from 'react-native-device-info';
 import AV from 'leancloud-storage';
+import SplashScreen from 'rn-splash-screen';
 
 import {
   Size,
@@ -75,6 +76,7 @@ class Main extends Component {
       showModal: true,
     }, () => {
       this.nextPuzzle = sudoku.makepuzzle();
+      setTimeout(SplashScreen.hide, 300);
     });
     this.granted = await Store.get('granted');
   }

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.facebook.react.ReactApplication;
+import com.mehcode.reactnative.splashscreen.SplashScreenPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -26,9 +27,10 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
+          new MainReactPackage(),
           new RNDeviceInfo(),
           new RNLeanCloudPackage("your leancloud appId", "your leancloud appKey"),
-          new MainReactPackage()
+          new SplashScreenPackage()
       );
     }
   };

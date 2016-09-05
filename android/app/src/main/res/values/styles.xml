@@ -3,7 +3,7 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowBackground">@drawable/splash</item>
     </style>
 
 </resources>

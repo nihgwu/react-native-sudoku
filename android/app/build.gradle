@@ -135,6 +135,7 @@ android {
 }
 
 dependencies {
+    compile project(':rn-splash-screen')
     compile project(':react-native-leancloud')
     compile project(':react-native-device-info')
     compile fileTree(dir: "libs", include: ["*.jar"])
