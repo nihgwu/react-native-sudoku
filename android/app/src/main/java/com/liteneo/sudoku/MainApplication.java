@@ -29,7 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
           new RNDeviceInfo(),
-          new RNLeanCloudPackage("your leancloud appId", "your leancloud appKey"),
+          new RNLeanCloudPackage("gVk8jt4UgJhs9Lb8wyH2fHHk-gzGzoHsz", "XkusJpvkcRSc6w1cNBghqEbW"),
           new SplashScreenPackage()
       );
     }

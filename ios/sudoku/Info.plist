@@ -25,9 +25,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LeanCloudAppId</key>
-	<string>your leancloud appId</string>
+	<string>gVk8jt4UgJhs9Lb8wyH2fHHk-gzGzoHsz</string>
 	<key>LeanCloudAppKey</key>
-	<string>your leancloud appKey</string>
+	<string>XkusJpvkcRSc6w1cNBghqEbW</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
