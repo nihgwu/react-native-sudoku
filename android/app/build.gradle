@@ -135,6 +135,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-i18n')
     compile project(':rn-splash-screen')
     compile project(':react-native-leancloud')
     compile project(':react-native-device-info')
