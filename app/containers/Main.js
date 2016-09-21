@@ -115,7 +115,6 @@ class Main extends Component {
           <View style={styles.modal} >
             <View style={[styles.modalContainer, {marginTop: showOnline? -onlineHeight:0}]} >
               {!showRecord&&<Text style={styles.title} >{I18n.t('name')}</Text>}
-              {!showRecord&&<Text style={styles.about} >by Neo(nihgwu@live.com)</Text>}
               <Touchable disabled={disabled} style={styles.button} onPress={this.onResume} >
                 <Image style={[styles.buttonIcon, disabled && styles.disabled]} source={require('../images/play.png')} />
                 <Text style={[styles.buttonText, disabled && styles.disabled]} >{I18n.t('continue')}</Text>
@@ -510,13 +509,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: CellSize,
     color: '#fff',
-  },
-  about: {
-    marginBottom: 20,
-    textAlign: 'center',
-    fontSize: CellSize / 2,
-    color: '#fff',
-    opacity: 0.5,
+    //fontFamily: 'Menlo',
   },
   footer: {
     flexDirection: 'row',
