@@ -6,11 +6,11 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "leancloud-storage": "^1.4.0-beta.0",
+    "leancloud-storage": "^1.4.0",
     "lodash": "^4.14.0",
     "react": "^15.3.1-rc.2",
     "react-native": "^0.34.0-rc.0",
-    "react-native-device-info": "^0.9.4",
+    "react-native-device-info": "^0.9.5",
     "react-native-i18n": "^0.1.1",
     "react-native-leancloud": "github:nihgwu/react-native-leancloud",
     "rn-splash-screen": "^2.1.0"
