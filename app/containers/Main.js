@@ -163,11 +163,17 @@ class Main extends Component {
               <Touchable style={styles.button} onPress={this.onShare} >
                 <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/share.png')} />
               </Touchable>
+              <Touchable style={styles.button} onPress={this.onRate} >
+                <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/rate.png')} />
+              </Touchable>
               <Touchable style={styles.button} onPress={this.onCloseModal} >
                 <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/close.png')} />
               </Touchable>
-              <Touchable style={styles.button} onPress={this.onRate} >
-                <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/rate.png')} />
+              <Touchable style={styles.button} onPress={this.onFeedback} >
+                <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/mail.png')} />
+              </Touchable>
+              <Touchable style={styles.button} onPress={this.onDonate} >
+                <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/coffee.png')} />
               </Touchable>
             </View>
           </View>
@@ -425,7 +431,9 @@ class Main extends Component {
     }, {
       dialogTitle: I18n.t('share'),
     }).catch(error => {
-      Alert.alert(I18n.t('sharefailed'));
+      Alert.alert(I18n.t('error'), I18n.t('sharefailed'), [
+        { text: I18n.t('ok') },
+      ]);
     });
   }
 
@@ -437,6 +445,22 @@ class Main extends Component {
       { text: I18n.t('cancel') },
       { text: I18n.t('confirm'), onPress: () => Linking.openURL(link) },
     ]);
+  }
+
+  onFeedback = () => {
+    Linking.openURL('mailto:nihgwu@live.com');
+  }
+
+  onDonate = async() => {
+    const link = 'alipayqr://platformapi/startapp?saId=10000007&qrcode=https%3A%2F%2Fqr.alipay.com%2Ffkx0411648nxwd5in3vj578';
+    const isInstalled = await Linking.canOpenURL(link);
+    if(!isInstalled) {
+      Alert.alert(I18n.t('thanks'), I18n.t('noalipay'), [
+        { text: I18n.t('ok') },
+      ]);
+      return;
+    }
+    Linking.openURL(link);
   }
 }
 

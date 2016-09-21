@@ -40,6 +40,9 @@ I18n.translations = {
     ratemessage: 'I developed this app for fun, your rate is my great hornor',
     cancel: 'Cancel',
     confirm: 'Confrim',
+
+    thanks: 'Thanks for your support',
+    noalipay: 'You hasn\'t installed AliPay, can\'t donate',
   },
   zh: {
     name: '数独大师',
@@ -76,6 +79,9 @@ I18n.translations = {
     ratemessage: '该应用为业余时间开发，您的好评是对我的最大支持',
     cancel: '取消',
     confirm: '确定',
+
+    thanks: '感谢支持',
+    noalipay: '您还没有安装支付宝应用，无法打赏',
   },
 };
 
