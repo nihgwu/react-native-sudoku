@@ -212,10 +212,15 @@ class Main extends Component {
 
   onMove = (index, number) => {
     this.score.solve[index] = number;
+    const elapsed = this.timer.getElapsed();
+    if (elapsed == 0 && this.score.steps.length) {
+      this.onShowModal();
+      return;
+    }
     this.score.steps.push({
       index,
       number,
-      elapsed: this.timer.getElapsed(),
+      elapsed,
     });
   }
 
@@ -474,8 +479,8 @@ class Main extends Component {
       'market://details?id=com.liteneo.sudoku' :
       'itms-apps://itunes.apple.com/cn/app/id1138612488?mt=8';
     Alert.alert(I18n.t('rate'), I18n.t('ratemessage'), [
-      { text: I18n.t('cancel') },
       { text: I18n.t('confirm'), onPress: () => Linking.openURL(link) },
+      { text: I18n.t('cancel') },
     ]);
   }
 
