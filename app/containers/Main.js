@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import {
   LayoutAnimation,
   StyleSheet,
+  ScrollView,
   AppState,
   Platform,
   Linking,
@@ -26,6 +27,7 @@ import {
   BoardWidth,
 
   Board,
+  Puzzle,
   Timer,
   Touchable,
 } from '../components';
@@ -45,10 +47,10 @@ function getStartOfWeek() {
   return new Date(date.getFullYear(), date.getMonth(), diff);
 }
 
-function initScore(puzzle = null) {
+function initScore(puzzle) {
   return {
     elapsed: null,
-    puzzle,
+    puzzle: puzzle ? puzzle.slice() : null,
     solve: null,
     steps: [],
     errors: [],
@@ -64,6 +66,7 @@ class Main extends Component {
     editing: false,
     fetching: false,
     showModal: false,
+    showChallenge: false,
     showRecord: false,
     showOnline: false,
   }
@@ -73,6 +76,7 @@ class Main extends Component {
   granted = false
   nextPuzzle = null
   records = []
+  challenges = []
 
   handeleAppStateChange = (currentAppState) => {
     if (currentAppState != 'active') this.onShowModal();
@@ -105,17 +109,12 @@ class Main extends Component {
   }
 
   render() {
-    const { puzzle, playing, initing, editing, showModal, showRecord, showOnline, fetching } = this.state;
+    const { puzzle, playing, initing, editing, showModal, showChallenge, showRecord, showOnline, fetching } = this.state;
     const disabled = !playing && !this.fromStore;
     if (puzzle && !this.score.solve) this.score.solve = puzzle.slice();
-    let height = 0;
-    if (showRecord) {
-      height = CellSize / 3 + CellSize * (this.scores.length + 1);
-    }
-    let onlineHeight = 0;
-    if (showOnline) {
-      onlineHeight = CellSize / 3 + CellSize * (this.records.length + 1);
-    }
+    const challengeHeight = showChallenge ? 180 : 0;
+    const recordHeight = showRecord ? CellSize / 3 + CellSize * (this.scores.length + 1) : 0;
+    const onlineHeight = showOnline ? CellSize / 3 + CellSize * (this.records.length + 1) : 0;
     return (
       <View style={styles.container} >
         <View style={styles.header} >
@@ -132,7 +131,7 @@ class Main extends Component {
         <Modal animationType='slide' visible={showModal} transparent={true} onRequestClose={this.onCloseModal} >
           <View style={styles.modal} >
             <View style={[styles.modalContainer, {marginTop: showOnline? -onlineHeight:0}]} >
-              {!showRecord&&<Text style={styles.title} >{I18n.t('name')}</Text>}
+              {!showChallenge&&!showRecord&&<Text style={styles.title} >{I18n.t('name')}</Text>}
               <Touchable disabled={disabled} style={styles.button} onPress={this.onResume} >
                 <Image style={[styles.buttonIcon, disabled && styles.disabled]} source={require('../images/play.png')} />
                 <Text style={[styles.buttonText, disabled && styles.disabled]} >{I18n.t('continue')}</Text>
@@ -145,11 +144,27 @@ class Main extends Component {
                 <Image style={styles.buttonIcon} source={require('../images/shuffle.png')} />
                 <Text style={styles.buttonText} >{I18n.t('newgame')}</Text>
               </Touchable>
+              <Touchable style={styles.button} onPress={this.onToggleChallenge} >
+                <Image style={styles.buttonIcon} source={require('../images/challenge.png')} />
+                <Text style={styles.buttonText} >{I18n.t('challenge')}</Text>
+              </Touchable>
+              <View style={{overflow: 'hidden', height: challengeHeight}} >
+                <ScrollView 
+                  horizontal={true} 
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.challenge} 
+                  contentContainerStyle={styles.challengeContainer} >
+                  {this.challenges.map((item, idx) => (
+                    <Puzzle key={idx} puzzle={item.get('puzzle')} elapsed={item.get('elapsed')} onPress={this.onChallenge} />
+                  ))}
+                </ScrollView>
+                <View style={styles.triangle} />
+              </View>
               <Touchable style={styles.button} onPress={this.onToggleRecord} >
                 <Image style={styles.buttonIcon} source={require('../images/rank.png')} />
                 <Text style={styles.buttonText} >{I18n.t('weekrank')}</Text>
               </Touchable>
-              <View style={{overflow: 'hidden', height}} >
+              <View style={{overflow: 'hidden', height: recordHeight}} >
                 <Touchable style={styles.record} onPress={this.onToggleRecord} >
                   <View style={styles.triangle} />
                   {this.scores.length > 0?
@@ -172,10 +187,12 @@ class Main extends Component {
                   <Text style={styles.recordText} onPress={this.onToggleOnline} >{I18n.t('rank', {rank: this.rank})}</Text>
                 }
               </View>
-              {fetching&&
-                <Text style={[styles.recordText, styles.highlightText]} >{I18n.t('loading')}</Text>
-              }
             </View>
+            {fetching&&
+              <View style={styles.loading}>
+                <Text style={[styles.recordText, styles.highlightText]} >{I18n.t('loading')}</Text>
+              </View>
+            }
             <View style={styles.footer} >
               <Touchable style={styles.button} onPress={this.onShare} >
                 <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/share.png')} />
@@ -204,6 +221,7 @@ class Main extends Component {
       initing: false,
       playing: true,
       showModal: false,
+      showChallenge: false,
       showRecord: false,
       showOnline: false,
     });
@@ -283,6 +301,7 @@ class Main extends Component {
       this.setState({
         puzzle: this.score.puzzle,
         initing: true,
+        showChallenge: false,
         showModal: false,
         showRecord: false,
       });
@@ -292,16 +311,16 @@ class Main extends Component {
     this.timer.resume();
     this.setState({
       showModal: false,
+      showChallenge: false,
       showRecord: false,
     });
   }
 
-  onClear = () => {
-    const puzzle = this.score.puzzle.slice();
+  setup(puzzle) {
     this.score = initScore(puzzle);
+    Store.set('score', this.score);
     this.fromStore = false;
     this.timer.reset();
-    Store.set('score', this.score);
 
     this.setState({
       puzzle,
@@ -309,14 +328,18 @@ class Main extends Component {
       editing: false,
       playing: false,
       showModal: false,
+      showChallenge: false,
       showRecord: false,
       showOnline: false,
     });
   }
 
+  onClear = () => {
+    const puzzle = this.score.puzzle.slice();
+    this.setup(puzzle);
+  }
+
   onCreate = () => {
-    this.fromStore = false;
-    this.timer.reset();
     let puzzle;
     if (this.nextPuzzle) {
       puzzle = this.nextPuzzle.slice();
@@ -324,25 +347,54 @@ class Main extends Component {
     } else {
       puzzle = sudoku.makepuzzle();
     }
-    this.score = initScore(puzzle);
+    this.setup(puzzle);
+  }
+
+  onChallenge = (puzzle) => {
+    puzzle = puzzle.slice();
+    this.setup(puzzle);
+  }
+
+  onToggleChallenge = async() => {
+    if (!this.state.showChallenge && !this.challenges.length) {
+      try {
+        LayoutAnimation.easeInEaseOut();
+        this.setState({
+          fetching: true,
+        });
+        let query = new AV.Query('Score');
+        query = new AV.Query('Score');
+        query.ascending('elapsed');
+        query.greaterThan('time', getStartOfWeek());
+        query.limit(10);
+        this.challenges = await query.find();
+        this.setState({
+          fetching: false,
+        });
+      } catch (e) {
+        this.setState({
+          fetching: false,
+        });
+        Alert.alert(I18n.t('error'), e.message || I18n.t('queryerror'), [
+          { text: I18n.t('ok') },
+        ]);
+        return;
+      }
+    }
+    LayoutAnimation.easeInEaseOut();
     this.setState({
-      puzzle,
-      initing: true,
-      editing: false,
-      playing: false,
-      showModal: false,
+      showChallenge: !this.state.showChallenge,
       showRecord: false,
       showOnline: false,
-    }, async() => {
-      Store.set('score', this.score);
     });
   }
 
   onToggleRecord = () => {
     LayoutAnimation.easeInEaseOut();
     this.setState({
-      showOnline: this.state.showRecord ? false : this.state.showOnline,
+      showChallenge: false,
       showRecord: !this.state.showRecord,
+      showOnline: this.state.showRecord ? false : this.state.showOnline,
     });
   }
 
@@ -405,7 +457,7 @@ class Main extends Component {
         query.greaterThan('time', getStartOfWeek());
         query.limit(10);
         this.records = await query.find();
-        console.log(this.records);
+        this.challenges = this.records.slice();
         query = new AV.Query('Score');
         query.greaterThan('time', getStartOfWeek());
         query.lessThan('elapsed', this.scores[0].elapsed);
@@ -437,6 +489,7 @@ class Main extends Component {
     }
     this.setState({
       showModal: true,
+      showChallenge: false,
       showRecord: false,
     }, () => {
       if (!this.nextPuzzle) this.nextPuzzle = sudoku.makepuzzle();
@@ -446,6 +499,7 @@ class Main extends Component {
   onCloseModal = () => {
     this.timer.resume();
     this.setState({
+      showChallenge: false,
       showRecord: false,
       showOnline: false,
     }, () => {
@@ -555,7 +609,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   button: {
-    padding: Size.height > 500 ? 20 : 10,
+    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -569,6 +623,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: CellSize * 3 / 4,
     fontFamily: 'Menlo',
+  },
+  challenge: {
+    flex: 1,
+    backgroundColor: 'cadetblue',
+    borderColor: 'darkcyan',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  challengeContainer: {
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   record: {
     backgroundColor: 'cadetblue',
@@ -603,6 +669,13 @@ const styles = StyleSheet.create({
       rotate: '45deg',
     }],
   },
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: CellSize * 3 / 2,
+    alignItems: 'center',
+  }
 });
 
 
