@@ -36,7 +36,25 @@ import {
 } from '../utils';
 
 const formatTime = Timer.formatTime;
-const Record = AV.Object.extend('Record');
+const Score = AV.Object.extend('Score');
+
+function getStartOfWeek() {
+  const date = new Date();
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day == 0 ? -6 : 1);
+  return new Date(date.getFullYear(), date.getMonth(), diff);
+}
+
+function initScore(puzzle = null) {
+  return {
+    elapsed: null,
+    puzzle,
+    solve: null,
+    steps: [],
+    errors: [],
+    time: null,
+  };
+}
 
 class Main extends Component {
   state = {
@@ -49,14 +67,12 @@ class Main extends Component {
     showRecord: false,
     showOnline: false,
   }
-  puzzle = null
-  solve = null
-  error = 0
-  elapsed = null
+  score = initScore()
   fromStore = false
-  records = []
+  scores = []
   granted = false
   nextPuzzle = null
+  records = []
 
   handeleAppStateChange = (currentAppState) => {
     if (currentAppState != 'active') this.onShowModal();
@@ -64,14 +80,16 @@ class Main extends Component {
 
   async componentDidMount() {
     AppState.addEventListener('change', this.handeleAppStateChange);
-    this.records = await Store.get('records') || [];
-    const puzzle = await Store.get('puzzle');
-    if (puzzle) {
-      this.puzzle = puzzle.slice();
+    this.scores = await Store.get('scores') || [];
+    if (this.scores.length) {
+      const weekStart = getStartOfWeek();
+      this.scores = this.scores.filter(x => new Date(x.time) > weekStart);
+      Store.set('scores', this.scores);
+    }
+    const score = await Store.get('score');
+    if (score) {
       this.fromStore = true;
-      this.solve = await Store.get('solve');
-      this.error = await Store.get('error') || 0;
-      this.elapsed = await Store.get('elapsed');
+      this.score = score;
     }
     this.setState({
       showModal: true,
@@ -89,14 +107,14 @@ class Main extends Component {
   render() {
     const { puzzle, playing, initing, editing, showModal, showRecord, showOnline, fetching } = this.state;
     const disabled = !playing && !this.fromStore;
-    if (puzzle && !this.solve) this.solve = puzzle.slice();
+    if (puzzle && !this.score.solve) this.score.solve = puzzle.slice();
     let height = 0;
     if (showRecord) {
-      height = CellSize / 3 + CellSize * (this.records.length + 1);
+      height = CellSize / 3 + CellSize * (this.scores.length + 1);
     }
     let onlineHeight = 0;
     if (showOnline) {
-      onlineHeight = CellSize / 3 + CellSize * (this.scores.length + 1);
+      onlineHeight = CellSize / 3 + CellSize * (this.records.length + 1);
     }
     return (
       <View style={styles.container} >
@@ -109,8 +127,8 @@ class Main extends Component {
             <Image style={[styles.icon, editing&&{tintColor: 'khaki'}, !playing && styles.disabled]} source={require('../images/edit.png')} />
           </Touchable>
         </View>
-        <Board puzzle={puzzle} solve={this.solve} editing={editing} 
-          onInit={this.onInit} onErrorMove={this.onErrorMove} onFinish={this.onFinish} />
+        <Board puzzle={puzzle} solve={this.score.solve} editing={editing} 
+          onInit={this.onInit} onMove={this.onMove} onErrorMove={this.onErrorMove} onFinish={this.onFinish} />
         <Modal animationType='slide' visible={showModal} transparent={true} onRequestClose={this.onCloseModal} >
           <View style={styles.modal} >
             <View style={[styles.modalContainer, {marginTop: showOnline? -onlineHeight:0}]} >
@@ -134,18 +152,18 @@ class Main extends Component {
               <View style={{overflow: 'hidden', height}} >
                 <Touchable style={styles.record} onPress={this.onToggleRecord} >
                   <View style={styles.triangle} />
-                  {this.records.length > 0?
-                    (this.records.map((item, idx) => <Text key={idx} style={styles.recordText} >{formatTime(item)}</Text>)):
+                  {this.scores.length > 0?
+                    (this.scores.map((item, idx) => <Text key={idx} style={styles.recordText} >{formatTime(item.elapsed)}</Text>)):
                     <Text style={styles.recordText} >{I18n.t('norecord')}</Text>
                   }
                 </Touchable>
                 {showRecord&&<Text style={styles.recordText} onPress={this.onToggleOnline} >{I18n.t('onlinerank')}</Text>}
               </View>
               <View style={{overflow: 'hidden', height: onlineHeight}} >
-                {!!this.scores && this.scores.length > 0 &&
+                {!!this.records && this.records.length > 0 &&
                   <Touchable style={styles.record} onPress={this.onToggleOnline} >
                     <View style={styles.triangle} />
-                    {this.scores.map((item, idx) => 
+                    {this.records.map((item, idx) => 
                       <Text key={idx} style={[styles.recordText, (idx + 1 == this.rank)&&styles.highlightText]} >{formatTime(item.get('elapsed'))}</Text>)
                     }
                   </Touchable>
@@ -168,11 +186,11 @@ class Main extends Component {
               <Touchable style={styles.button} onPress={this.onCloseModal} >
                 <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/close.png')} />
               </Touchable>
-              <Touchable style={styles.button} onPress={this.onFeedback} >
-                <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/mail.png')} />
-              </Touchable>
               <Touchable style={styles.button} onPress={this.onDonate} >
                 <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/coffee.png')} />
+              </Touchable>
+              <Touchable style={styles.button} onPress={this.onFeedback} >
+                <Image style={[styles.buttonIcon, styles.disabled]} source={require('../images/mail.png')} />
               </Touchable>
             </View>
           </View>
@@ -188,14 +206,26 @@ class Main extends Component {
       showModal: false,
       showRecord: false,
       showOnline: false,
-    }, () => {
-      this.timer.start();
+    });
+    this.timer.start();
+  }
+
+  onMove = (index, number) => {
+    this.score.solve[index] = number;
+    this.score.steps.push({
+      index,
+      number,
+      elapsed: this.timer.getElapsed(),
     });
   }
 
-  onErrorMove = () => {
-    this.error++;
-    const message = this.error > 3 ? I18n.t('fail') : I18n.t('errormove', {error: this.error});
+  onErrorMove = (index, number) => {
+    this.score.errors.push({
+      index,
+      number,
+      elapsed: this.timer.getElapsed(),
+    });
+    const message = this.score.errors.length > 3 ? I18n.t('fail') : I18n.t('errormove', { error: this.score.errors.length });
     Alert.alert(I18n.t('nosolve'), message, [
       { text: I18n.t('ok') },
       { text: I18n.t('newgame'), onPress: this.onCreate },
@@ -206,28 +236,28 @@ class Main extends Component {
     this.setState({
       playing: false,
     });
-    Store.multiRemove('puzzle', 'solve', 'error', 'elapsed');
-    this.elapsed = null;
-    this.solve = null;
     this.fromStore = false;
     const elapsed = this.timer.stop();
-    if (this.error > 3) {
+    this.score.elapsed = elapsed;
+    if (this.score.errors.length > 3) {
       setTimeout(() => {
         Alert.alert(I18n.t('congrats'), I18n.t('success') + formatTime(elapsed) + '\n' + I18n.t('fail'), [
           { text: I18n.t('ok') },
           { text: I18n.t('newgame'), onPress: this.onCreate },
         ]);
+        this.score = initScore();
       }, 2000);
       return;
     }
-    if (!this.records.includes(elapsed)) {
-      this.records.push(elapsed);
-      this.records.sort((a, b) => a - b);
-      this.records = this.records.slice(0, 5);
-      Store.set('records', this.records);
-    }
-    const length = this.records.length;
-    const newRecord = elapsed == this.records[0] && this.records.length > 1;
+    this.score.time = new Date();
+    this.scores.push(this.score);
+    this.scores.sort((a, b) => a.elapsed - b.elapsed);
+    this.scores = this.scores.slice(0, 5);
+    Store.set('scores', this.scores);
+    Store.remove('score');
+    this.score = initScore();
+
+    const newRecord = elapsed == this.scores[0].elapsed && this.scores.length > 1;
     setTimeout(() => {
       Alert.alert(I18n.t('congrats'), (newRecord ? I18n.t('newrecord') : I18n.t('success')) + formatTime(elapsed), [
         { text: I18n.t('ok') },
@@ -244,9 +274,9 @@ class Main extends Component {
 
   onResume = () => {
     if (this.fromStore) {
-      this.timer.setElapsed(this.elapsed);
+      this.timer.setElapsed(this.score.elapsed);
       this.setState({
-        puzzle: this.puzzle,
+        puzzle: this.score.puzzle,
         initing: true,
         showModal: false,
         showRecord: false,
@@ -262,15 +292,14 @@ class Main extends Component {
   }
 
   onClear = () => {
-    this.elapsed = null;
-    this.error = 0;
-    this.solve = null;
+    const puzzle = this.score.puzzle.slice();
+    this.score = initScore(puzzle);
     this.fromStore = false;
     this.timer.reset();
-    Store.multiRemove('solve', 'error', 'elapsed');
+    Store.set('score', this.score);
 
     this.setState({
-      puzzle: this.puzzle.slice(),
+      puzzle,
       initing: true,
       editing: false,
       playing: false,
@@ -281,9 +310,6 @@ class Main extends Component {
   }
 
   onCreate = () => {
-    this.elapsed = null;
-    this.error = 0;
-    this.solve = null;
     this.fromStore = false;
     this.timer.reset();
     let puzzle;
@@ -293,6 +319,7 @@ class Main extends Component {
     } else {
       puzzle = sudoku.makepuzzle();
     }
+    this.score = initScore(puzzle);
     this.setState({
       puzzle,
       initing: true,
@@ -302,9 +329,7 @@ class Main extends Component {
       showRecord: false,
       showOnline: false,
     }, async() => {
-      await Store.multiRemove('puzzle', 'solve', 'error', 'elapsed');
-      this.puzzle = puzzle.slice();
-      Store.set('puzzle', this.puzzle);
+      Store.set('score', this.score);
     });
   }
 
@@ -337,21 +362,28 @@ class Main extends Component {
     }
     if (!this.state.showOnline) {
       try {
-        this.scores = null;
+        this.records = null;
         this.rank = null;
         LayoutAnimation.easeInEaseOut();
         this.setState({
           fetching: true,
         });
-        let query = new AV.Query('Record');
+        let query = new AV.Query('Score');
         query.equalTo('uid', DeviceInfo.getUniqueID());
         let score = await query.first();
-        if (!score || score.get('elapsed') > this.records[0]) {
-          if (!score) score = new Record();
-          else score = AV.Object.createWithoutData('Record', score.id);
-          score.set('elapsed', this.records[0]);
+        if (!score || score.get('elapsed') > this.scores[0].elapsed) {
+          if (!score) score = new Score();
+          else score = AV.Object.createWithoutData('Score', score.id);
+          const best = this.scores[0];
+          score.set('elapsed', best.elapsed);
+          score.set('puzzle', best.puzzle);
+          score.set('solve', best.solve);
+          score.set('steps', best.steps);
+          score.set('errors', best.errors);
+          score.set('time', new Date(best.time));
           score.set('uid', DeviceInfo.getUniqueID());
           score.set('model', DeviceInfo.getModel());
+          score.set('device', DeviceInfo.getDeviceName());
           const result = await score.save();
           if (!result || !result.id) {
             this.setState({
@@ -363,12 +395,15 @@ class Main extends Component {
             return;
           }
         }
-        query = new AV.Query('Record');
+        query = new AV.Query('Score');
         query.ascending('elapsed');
+        query.greaterThan('time', getStartOfWeek());
         query.limit(10);
-        this.scores = await query.find();
-        query = new AV.Query('Record');
-        query.lessThan('elapsed', this.records[0]);
+        this.records = await query.find();
+        console.log(this.records);
+        query = new AV.Query('Score');
+        query.greaterThan('time', getStartOfWeek());
+        query.lessThan('elapsed', this.scores[0].elapsed);
         this.rank = await query.count();
         this.rank = this.rank + 1;
         this.setState({
@@ -391,11 +426,9 @@ class Main extends Component {
   }
 
   onShowModal = () => {
-    if (!this.state.initing) {
-      if (this.solve) Store.set('solve', this.solve);
-      if (this.error) Store.set('error', this.error);
-      this.elapsed = this.timer.pause();
-      if (this.elapsed) Store.set('elapsed', this.elapsed);
+    if (!this.state.initing && this.score.puzzle) {
+      this.score.elapsed = this.timer.pause();
+      Store.set('score', this.score);
     }
     this.setState({
       showModal: true,
@@ -453,7 +486,7 @@ class Main extends Component {
   onDonate = async() => {
     const link = 'alipayqr://platformapi/startapp?saId=10000007&qrcode=https%3A%2F%2Fqr.alipay.com%2Ffkx0411648nxwd5in3vj578';
     const isInstalled = await Linking.canOpenURL(link);
-    if(!isInstalled) {
+    if (!isInstalled) {
       Alert.alert(I18n.t('thanks'), I18n.t('noalipay'), [
         { text: I18n.t('ok') },
       ]);

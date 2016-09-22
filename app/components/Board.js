@@ -122,10 +122,11 @@ class Board extends Component {
       nextPuzzle[index] = number;
       if (!sudoku.solvepuzzle(nextPuzzle)) {
         stack.moveBack(() => {
-          this.props.onErrorMove && this.props.onErrorMove();
+          this.props.onErrorMove && this.props.onErrorMove(index, number);
         });
         return;
       }
+      this.props.onMove && this.props.onMove(index, number);
       this.movedStacks[number]++;
       this.cells[index].setNumber(number);
       this.props.onMove && this.props.onMove();

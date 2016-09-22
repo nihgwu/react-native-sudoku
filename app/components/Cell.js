@@ -75,7 +75,7 @@ class Cell extends Component {
       Animated.timing(this.state.anim, {
         toValue: 1,
         duration: 1000,
-        //useNativeDriver: true,
+        useNativeDriver: false,
       }).start(() => {
         this.setState({
           toggle: false,

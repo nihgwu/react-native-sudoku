@@ -13,7 +13,7 @@ I18n.translations = {
     weekrank: 'Week Rank',
     norecord: 'No records yet',
     onlinerank: 'Online Rank',
-    rank: 'You are at %{rank}',
+    rank: 'You are in the %{rank} place',
 
     ok: 'Got it',
     congrats: 'Congrats',
