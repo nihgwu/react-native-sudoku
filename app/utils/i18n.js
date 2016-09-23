@@ -14,7 +14,7 @@ I18n.translations = {
     weekrank: 'Week Rank',
     norecord: 'No records yet',
     onlinerank: 'Online Rank',
-    rank: 'You are in the %{rank} place',
+    rank: 'You are in place %{rank}',
 
     ok: 'Got it',
     congrats: 'Congrats',
@@ -24,13 +24,9 @@ I18n.translations = {
     errormove: 'Wrong move for %{error} times, you will lose for more than 3 times',
     newrecord: 'New record! You solved this puzzle in\n',
 
-    uploadrecord: 'Send you record to the server?',
-    uploadmessage: 'You have to upload your record to view the online rank',
-    reject: 'Reject',
-    grant: 'Grant',
     loading: 'loading……',
     error: 'Error',
-    uplaoderror: 'Upload failed',
+    uploaderror: 'Upload failed',
     queryerror: 'Query failed',
 
     share: 'Share',
@@ -46,7 +42,7 @@ I18n.translations = {
     noalipay: 'You hasn\'t installed AliPay, can\'t donate',
   },
   zh: {
-    name: '数独大师',
+    name: '数 独 大 师',
     continue: '继续游戏',
     restart: '重新开始',
     newgame: '新的游戏',
@@ -64,10 +60,6 @@ I18n.translations = {
     errormove: '您已失误 %{error} 次, 超过 3 次成绩将无效',
     newrecord: '新的解题记录\n 用时 ',
 
-    uploadrecord: '是否提交成绩？',
-    uploadmessage: '您必须先提交自己的最好成绩才能查看在线排行',
-    reject: '不提交',
-    grant: '提交',
     loading: '正在加载中……',
     error: '出错了',
     uploaderror: '成绩上传失败',

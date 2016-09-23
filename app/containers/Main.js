@@ -72,11 +72,9 @@ class Main extends Component {
   }
   score = initScore()
   fromStore = false
-  scores = []
-  granted = false
   nextPuzzle = null
+  scores = []
   records = []
-  challenges = []
 
   handeleAppStateChange = (currentAppState) => {
     if (currentAppState != 'active') this.onShowModal();
@@ -101,7 +99,6 @@ class Main extends Component {
       this.nextPuzzle = sudoku.makepuzzle();
       setTimeout(SplashScreen.hide, 300);
     });
-    this.granted = await Store.get('granted');
   }
 
   componentWillUnmount() {
@@ -154,7 +151,7 @@ class Main extends Component {
                   showsHorizontalScrollIndicator={false}
                   style={styles.challenge} 
                   contentContainerStyle={styles.challengeContainer} >
-                  {this.challenges.map((item, idx) => (
+                  {showChallenge && this.records.map((item, idx) => (
                     <Puzzle key={idx} puzzle={item.get('puzzle')} elapsed={item.get('elapsed')} onPress={this.onChallenge} />
                   ))}
                 </ScrollView>
@@ -175,7 +172,7 @@ class Main extends Component {
                 {showRecord&&<Text style={styles.recordText} onPress={this.onToggleOnline} >{I18n.t('onlinerank')}</Text>}
               </View>
               <View style={{overflow: 'hidden', height: onlineHeight}} >
-                {!!this.records && this.records.length > 0 &&
+                {this.records.length > 0 &&
                   <Touchable style={styles.record} onPress={this.onToggleOnline} >
                     <View style={styles.triangle} />
                     {this.records.map((item, idx) => 
@@ -184,7 +181,9 @@ class Main extends Component {
                   </Touchable>
                 }
                 {!!this.rank&&
-                  <Text style={styles.recordText} onPress={this.onToggleOnline} >{I18n.t('rank', {rank: this.rank})}</Text>
+                  <Touchable onPress={this.onToggleOnline} >
+                    <Text style={styles.recordText} >{I18n.t('rank', {rank: this.rank})}</Text>
+                  </Touchable>
                 }
               </View>
             </View>
@@ -279,7 +278,7 @@ class Main extends Component {
     Store.set('scores', this.scores);
     Store.remove('score');
     this.score = initScore();
-
+    this.uploadScore(this.score);
     const newRecord = elapsed == this.scores[0].elapsed && this.scores.length > 1;
     setTimeout(() => {
       Alert.alert(I18n.t('congrats'), (newRecord ? I18n.t('newrecord') : I18n.t('success')) + formatTime(elapsed), [
@@ -356,7 +355,7 @@ class Main extends Component {
   }
 
   onToggleChallenge = async() => {
-    if (!this.state.showChallenge && !this.challenges.length) {
+    if (!this.state.showChallenge && !this.records.length) {
       try {
         LayoutAnimation.easeInEaseOut();
         this.setState({
@@ -367,7 +366,7 @@ class Main extends Component {
         query.ascending('elapsed');
         query.greaterThan('time', getStartOfWeek());
         query.limit(10);
-        this.challenges = await query.find();
+        this.records = await query.find();
         this.setState({
           fetching: false,
         });
@@ -398,50 +397,60 @@ class Main extends Component {
     });
   }
 
-  onToggleOnline = async() => {
-    if (!this.granted) {
-      const upload = await new Promise((resolve, reject) => {
-        Alert.alert(I18n.t('uploadrecord'), I18n.t('uploadmessage'), [{
-          text: I18n.t('reject'),
-          onPress: () => {
-            resolve(false);
-          },
-        }, {
-          text: I18n.t('grant'),
-          onPress: () => {
-            resolve(true);
-          },
-        }]);
-      });
-      if (!upload) return;
-      this.granted = true;
-      Store.set('granted', true);
+  uploadScore = async(_score) => {
+    const sid = _score.puzzle.map(x => x == null ? 0 : x + 1).join('');
+    this.setState({
+      fetching: true,
+    });
+    let query = new AV.Query('Score');
+    query.equalTo('sid', sid);
+    query.ascending('elapsed');
+    let score = await query.first();
+    if (!score || score.get('elapsed') > _score.elapsed) {
+      if (!score) {
+        score = new Score();
+      } else {
+        const played = score.get('played') + 1;
+        score = AV.Object.createWithoutData('Score', score.id);
+        score.set('played', played);
+      }
+      score.set('elapsed', _score.elapsed);
+      score.set('sid', sid);
+      score.set('puzzle', _score.puzzle);
+      score.set('solve', _score.solve);
+      score.set('steps', _score.steps);
+      score.set('errors', _score.errors);
+      score.set('time', new Date(_score.time));
+      score.set('uid', DeviceInfo.getUniqueID());
+      score.set('model', DeviceInfo.getModel());
+      score.set('device', DeviceInfo.getDeviceName());
+    } else {
+      const played = score.get('played') + 1;
+      score = AV.Object.createWithoutData('Score', score.id);
+      score.set('played', played);
     }
+
+    const result = await score.save();
+    return result;
+  }
+
+  onToggleOnline = async() => {
     if (!this.state.showOnline) {
       try {
-        this.records = null;
+        this.records = [];
         this.rank = null;
         LayoutAnimation.easeInEaseOut();
         this.setState({
           fetching: true,
         });
+        const best = this.scores[0];
+        const sid = best.puzzle.map(x => x == null ? 0 : x + 1).join('');
         let query = new AV.Query('Score');
-        query.equalTo('uid', DeviceInfo.getUniqueID());
+        query.equalTo('sid', sid);
+        query.ascending('elapsed');
         let score = await query.first();
-        if (!score || score.get('elapsed') > this.scores[0].elapsed) {
-          if (!score) score = new Score();
-          else score = AV.Object.createWithoutData('Score', score.id);
-          const best = this.scores[0];
-          score.set('elapsed', best.elapsed);
-          score.set('puzzle', best.puzzle);
-          score.set('solve', best.solve);
-          score.set('steps', best.steps);
-          score.set('errors', best.errors);
-          score.set('time', new Date(best.time));
-          score.set('uid', DeviceInfo.getUniqueID());
-          score.set('model', DeviceInfo.getModel());
-          score.set('device', DeviceInfo.getDeviceName());
-          const result = await score.save();
+        if (!score || score.get('elapsed') > best.elapsed) {
+          const result = await this.uploadScore(best);
           if (!result || !result.id) {
             this.setState({
               fetching: false,
@@ -451,16 +460,18 @@ class Main extends Component {
             ]);
             return;
           }
+          this.records == [];
+        }
+        if (this.records.length == 0) {
+          query = new AV.Query('Score');
+          query.ascending('elapsed');
+          query.greaterThan('time', getStartOfWeek());
+          query.limit(10);
+          this.records = await query.find();
         }
         query = new AV.Query('Score');
-        query.ascending('elapsed');
         query.greaterThan('time', getStartOfWeek());
-        query.limit(10);
-        this.records = await query.find();
-        this.challenges = this.records.slice();
-        query = new AV.Query('Score');
-        query.greaterThan('time', getStartOfWeek());
-        query.lessThan('elapsed', this.scores[0].elapsed);
+        query.lessThan('elapsed', best.elapsed);
         this.rank = await query.count();
         this.rank = this.rank + 1;
         this.setState({
@@ -600,6 +611,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
     fontSize: CellSize,
+    fontFamily: 'Menlo',
     color: '#fff',
     //fontFamily: 'Menlo',
   },
