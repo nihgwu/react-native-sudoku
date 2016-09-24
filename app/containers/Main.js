@@ -69,6 +69,7 @@ class Main extends Component {
     showChallenge: false,
     showRecord: false,
     showOnline: false,
+    failed: false,
   }
   score = initScore()
   fromStore = false
@@ -106,7 +107,7 @@ class Main extends Component {
   }
 
   render() {
-    const { puzzle, playing, initing, editing, showModal, showChallenge, showRecord, showOnline, fetching } = this.state;
+    const { puzzle, playing, initing, editing, showModal, showChallenge, showRecord, showOnline, fetching, failed } = this.state;
     const disabled = !playing && !this.fromStore;
     if (puzzle && !this.score.solve) this.score.solve = puzzle.slice();
     const challengeHeight = showChallenge ? 180 : 0;
@@ -122,6 +123,9 @@ class Main extends Component {
           <Touchable disabled={!playing} onPress={this.onToggleEditing} >
             <Image style={[styles.icon, editing&&{tintColor: 'khaki'}, !playing && styles.disabled]} source={require('../images/edit.png')} />
           </Touchable>
+        </View>
+        <View style={styles.errors} >
+          {this.score.errors.map((item, idx) => <Image key={idx} style={[styles.error, failed&&{tintColor: 'orangered'}]} source={require('../images/close.png')} />)}
         </View>
         <Board puzzle={puzzle} solve={this.score.solve} editing={editing} 
           onInit={this.onInit} onMove={this.onMove} onErrorMove={this.onErrorMove} onFinish={this.onFinish} />
@@ -247,8 +251,12 @@ class Main extends Component {
       number,
       elapsed: this.timer.getElapsed(),
     });
-    const message = this.score.errors.length > 3 ? I18n.t('fail') : I18n.t('errormove', { error: this.score.errors.length });
-    Alert.alert(I18n.t('nosolve'), message, [
+    LayoutAnimation.easeInEaseOut();
+    this.setState({
+      failed: this.score.errors.length > 3,
+    });
+    if (this.score.errors.length != 4) return;
+    Alert.alert(I18n.t('sorry'), I18n.t('fail'), [
       { text: I18n.t('ok') },
       { text: I18n.t('newgame'), onPress: this.onCreate },
     ]);
@@ -267,6 +275,7 @@ class Main extends Component {
           { text: I18n.t('ok') },
           { text: I18n.t('newgame'), onPress: this.onCreate },
         ]);
+        Store.remove('score');
         this.score = initScore();
       }, 2000);
       return;
@@ -303,6 +312,7 @@ class Main extends Component {
         showChallenge: false,
         showModal: false,
         showRecord: false,
+        failed: this.score.errors.length > 3,
       });
       this.fromStore = false;
       return;
@@ -590,6 +600,21 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     color: '#fff',
     opacity: 1,
+  },
+  errors: {
+    overflow: 'hidden',
+    width: BoardWidth,
+    height: 20,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  error: {
+    width: 12,
+    height: 12,
+    tintColor: 'khaki',
+    marginHorizontal: 6,
   },
   modal: {
     flex: 1,

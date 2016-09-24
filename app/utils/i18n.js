@@ -18,11 +18,10 @@ I18n.translations = {
 
     ok: 'Got it',
     congrats: 'Congrats',
-    nosolve: 'No solve after this move',
-    success: 'You solved this puzzle in\n',
-    fail: 'You lose this game for more then 3 wrong moves',
-    errormove: 'Wrong move for %{error} times, you will lose for more than 3 times',
-    newrecord: 'New record! You solved this puzzle in\n',
+    sorry: 'Sorry',
+    success: 'You solve this puzzle in\n',
+    fail: 'You lose this puzzle for more then 3 no solution moves',
+    newrecord: 'New record! You solve this puzzle in\n',
 
     loading: 'loading……',
     error: 'Error',
@@ -54,10 +53,9 @@ I18n.translations = {
 
     ok: '知道了',
     congrats: '恭喜您',
-    nosolve: '这一步之后将无解',
+    sorry: '解题失败',
     success: '成功解决本题\n用时 ',
-    fail: '您已失误超过 3 次，本次成绩无效',
-    errormove: '您已失误 %{error} 次, 超过 3 次成绩将无效',
+    fail: '填字后无解超过 3 次，本次成绩无效',
     newrecord: '新的解题记录\n 用时 ',
 
     loading: '正在加载中……',

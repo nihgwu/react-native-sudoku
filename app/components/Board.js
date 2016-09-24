@@ -282,7 +282,7 @@ class Board extends Component {
 
 const styles = StyleSheet.create({
   boardContainer: {
-    marginTop: 20,
+    //marginTop: 20,
     alignItems: 'center',
     width: BoardWidth,
   },
