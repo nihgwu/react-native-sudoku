@@ -272,20 +272,20 @@ class Main extends Component {
       return;
     }
     this.score.time = new Date();
-    this.scores.push(this.score);
-    this.scores.sort((a, b) => a.elapsed - b.elapsed);
-    this.scores = this.scores.slice(0, 5);
-    Store.set('scores', this.scores);
-    Store.remove('score');
-    this.score = initScore();
     this.uploadScore(this.score);
-    const newRecord = elapsed == this.scores[0].elapsed && this.scores.length > 1;
+    const newRecord = elapsed > this.scores[0].elapsed && this.scores.length > 0;
     setTimeout(() => {
       Alert.alert(I18n.t('congrats'), (newRecord ? I18n.t('newrecord') : I18n.t('success')) + formatTime(elapsed), [
         { text: I18n.t('ok') },
         { text: I18n.t('newgame'), onPress: this.onCreate },
       ]);
     }, 2000);
+    this.scores.push(this.score);
+    this.scores.sort((a, b) => a.elapsed - b.elapsed);
+    this.scores = this.scores.slice(0, 5);
+    Store.set('scores', this.scores);
+    Store.remove('score');
+    this.score = initScore();
   }
 
   onToggleEditing = () => {
