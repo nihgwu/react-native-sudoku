@@ -283,6 +283,7 @@ class Main extends Component {
     this.score.time = new Date();
     this.uploadScore(this.score);
     const newRecord = elapsed > this.scores[0].elapsed && this.scores.length > 0;
+    if (newRecord) this.records = [];
     setTimeout(() => {
       Alert.alert(I18n.t('congrats'), (newRecord ? I18n.t('newrecord') : I18n.t('success')) + formatTime(elapsed), [
         { text: I18n.t('ok') },
