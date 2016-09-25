@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   button: {
   	position: 'absolute',
-  	top: CellSize * 9 / 2 - 24,
+  	bottom: CellSize * 9 / 2 - 24,
   	left: CellSize * 9 / 2 - 24,
   	width: 48,
   	height: 48,

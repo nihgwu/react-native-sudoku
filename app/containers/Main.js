@@ -282,7 +282,7 @@ class Main extends Component {
     }
     this.score.time = new Date();
     this.uploadScore(this.score);
-    const newRecord = elapsed > this.scores[0].elapsed && this.scores.length > 0;
+    const newRecord = this.scores.length > 0 && elapsed > this.scores[0].elapsed ;
     if (newRecord) this.records = [];
     setTimeout(() => {
       Alert.alert(I18n.t('congrats'), (newRecord ? I18n.t('newrecord') : I18n.t('success')) + formatTime(elapsed), [
@@ -410,9 +410,6 @@ class Main extends Component {
 
   uploadScore = async(_score) => {
     const sid = _score.puzzle.map(x => x == null ? 0 : x + 1).join('');
-    this.setState({
-      fetching: true,
-    });
     let query = new AV.Query('Score');
     query.equalTo('sid', sid);
     query.ascending('elapsed');
