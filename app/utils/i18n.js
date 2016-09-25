@@ -39,6 +39,8 @@ I18n.translations = {
 
     thanks: 'Thanks for your support',
     noalipay: 'You hasn\'t installed AliPay, can\'t donate',
+    donate: 'Donate via AliPay',
+    donatemessage: 'Buy a cup of coffee',
   },
   zh: {
     name: '数 独 大 师',
@@ -74,6 +76,8 @@ I18n.translations = {
 
     thanks: '感谢支持',
     noalipay: '您还没有安装支付宝应用，无法打赏',
+    donate: '支付宝打赏',
+    donatemessage: '送一杯咖啡以示支持',
   },
 };
 

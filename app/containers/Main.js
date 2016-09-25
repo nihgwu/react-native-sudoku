@@ -570,7 +570,10 @@ class Main extends Component {
       ]);
       return;
     }
-    Linking.openURL(link);
+    Alert.alert(I18n.t('donate'), I18n.t('donatemessage'), [
+      { text: I18n.t('confirm'), onPress: () => Linking.openURL(link) },
+      { text: I18n.t('cancel') },
+    ]);
   }
 }
 
