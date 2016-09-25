@@ -76,6 +76,8 @@ class Main extends Component {
   nextPuzzle = null
   scores = []
   records = []
+  ranks = []
+  rank = null
 
   handeleAppStateChange = (currentAppState) => {
     if (currentAppState != 'active') this.onShowModal();
@@ -176,11 +178,11 @@ class Main extends Component {
                 {showRecord&&<Text style={styles.recordText} onPress={this.onToggleOnline} >{I18n.t('onlinerank')}</Text>}
               </View>
               <View style={{overflow: 'hidden', height: onlineHeight}} >
-                {this.records.length > 0 &&
+                {this.ranks.length > 0 &&
                   <Touchable style={styles.record} onPress={this.onToggleOnline} >
                     <View style={styles.triangle} />
-                    {this.records.map((item, idx) => 
-                      <Text key={idx} style={[styles.recordText, (idx + 1 == this.rank)&&styles.highlightText]} >{formatTime(item.get('elapsed'))}</Text>)
+                    {this.ranks.map((item, idx) => 
+                      <Text key={idx} style={[styles.recordText, (idx + 1 == this.rank)&&styles.highlightText]} >{formatTime(item)}</Text>)
                     }
                   </Touchable>
                 }
@@ -282,7 +284,7 @@ class Main extends Component {
     }
     this.score.time = new Date();
     this.uploadScore(this.score);
-    const newRecord = this.scores.length > 0 && elapsed < this.scores[0].elapsed ;
+    const newRecord = this.scores.length > 0 && elapsed < this.scores[0].elapsed;
     if (newRecord) this.records = [];
     setTimeout(() => {
       Alert.alert(I18n.t('congrats'), (newRecord ? I18n.t('newrecord') : I18n.t('success')) + formatTime(elapsed), [
@@ -446,6 +448,7 @@ class Main extends Component {
     if (!this.state.showOnline) {
       try {
         this.records = [];
+        this.ranks = [];
         this.rank = null;
         LayoutAnimation.easeInEaseOut();
         this.setState({
@@ -481,6 +484,11 @@ class Main extends Component {
         query.greaterThan('time', getStartOfWeek());
         query.lessThan('elapsed', best.elapsed);
         this.rank = await query.count();
+        this.ranks = this.records.map(x => x.get('elapsed'));
+        if (this.rank < 10 && !this.ranks.includes(best.elapsed)) {
+          this.ranks.splice(this.rank, 0, best.elapsed);
+          this.ranks.pop();
+        }
         this.rank = this.rank + 1;
         this.setState({
           fetching: false,
