@@ -50,7 +50,7 @@ function getStartOfWeek() {
 function initScore(puzzle) {
   return {
     elapsed: null,
-    puzzle: puzzle ? puzzle.slice() : null,
+    puzzle: puzzle,
     solve: null,
     steps: [],
     errors: [],
@@ -61,6 +61,7 @@ function initScore(puzzle) {
 class Main extends Component {
   state = {
     puzzle: null,
+    errors: null,
     playing: false,
     initing: false,
     editing: false,
@@ -69,7 +70,6 @@ class Main extends Component {
     showChallenge: false,
     showRecord: false,
     showOnline: false,
-    failed: false,
   }
   score = initScore()
   fromStore = false
@@ -109,7 +109,7 @@ class Main extends Component {
   }
 
   render() {
-    const { puzzle, playing, initing, editing, showModal, showChallenge, showRecord, showOnline, fetching, failed } = this.state;
+    const { puzzle, errors, playing, initing, editing, showModal, showChallenge, showRecord, showOnline, fetching } = this.state;
     const disabled = !playing && !this.fromStore;
     if (puzzle && !this.score.solve) this.score.solve = puzzle.slice();
     const challengeHeight = showChallenge ? 180 : 0;
@@ -127,7 +127,7 @@ class Main extends Component {
           </Touchable>
         </View>
         <View style={styles.errors} >
-          {this.score.errors.map((item, idx) => <Image key={idx} style={[styles.error, failed&&{tintColor: 'orangered'}]} source={require('../images/close.png')} />)}
+          {!!errors&&errors.map((item, idx) => <Image key={idx} style={[styles.error, this.score.errors.length > 3&&{tintColor: 'orangered'}]} source={require('../images/close.png')} />)}
         </View>
         <Board puzzle={puzzle} solve={this.score.solve} editing={editing} 
           onInit={this.onInit} onMove={this.onMove} onErrorMove={this.onErrorMove} onFinish={this.onFinish} />
@@ -248,14 +248,19 @@ class Main extends Component {
   }
 
   onErrorMove = (index, number) => {
+    const elapsed = this.timer.getElapsed();
     this.score.errors.push({
       index,
       number,
-      elapsed: this.timer.getElapsed(),
+      elapsed,
     });
+    if (elapsed == 0 && this.score.steps.length) {
+      this.onShowModal();
+      return;
+    }
     LayoutAnimation.easeInEaseOut();
     this.setState({
-      failed: this.score.errors.length > 3,
+      errors: this.score.errors,
     });
     if (this.score.errors.length != 4) return;
     Alert.alert(I18n.t('sorry'), I18n.t('fail'), [
@@ -269,6 +274,7 @@ class Main extends Component {
       playing: false,
     });
     this.fromStore = false;
+    Store.remove('score');
     const elapsed = this.timer.stop();
     this.score.elapsed = elapsed;
     if (this.score.errors.length > 3) {
@@ -277,8 +283,6 @@ class Main extends Component {
           { text: I18n.t('ok') },
           { text: I18n.t('newgame'), onPress: this.onCreate },
         ]);
-        Store.remove('score');
-        this.score = initScore();
       }, 2000);
       return;
     }
@@ -296,8 +300,6 @@ class Main extends Component {
     this.scores.sort((a, b) => a.elapsed - b.elapsed);
     this.scores = this.scores.slice(0, 5);
     Store.set('scores', this.scores);
-    Store.remove('score');
-    this.score = initScore();
   }
 
   onToggleEditing = () => {
@@ -311,11 +313,11 @@ class Main extends Component {
       this.timer.setElapsed(this.score.elapsed);
       this.setState({
         puzzle: this.score.puzzle,
+        errors: this.score.errors,
         initing: true,
         showChallenge: false,
         showModal: false,
         showRecord: false,
-        failed: this.score.errors.length > 3,
       });
       this.fromStore = false;
       return;
@@ -336,6 +338,7 @@ class Main extends Component {
 
     this.setState({
       puzzle,
+      errors: null,
       initing: true,
       editing: false,
       playing: false,
@@ -510,7 +513,7 @@ class Main extends Component {
   }
 
   onShowModal = () => {
-    if (!this.state.initing && this.score.puzzle) {
+    if (this.state.playing) {
       this.score.elapsed = this.timer.pause();
       Store.set('score', this.score);
     }
@@ -524,7 +527,7 @@ class Main extends Component {
   }
 
   onCloseModal = () => {
-    this.timer.resume();
+    if (this.state.playing) this.timer.resume();
     this.setState({
       showChallenge: false,
       showRecord: false,
@@ -669,6 +672,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: CellSize * 3 / 4,
     fontFamily: 'Menlo',
+    ...Platform.select({
+      android: {
+        width: CellSize * 4,
+      },
+    }),
   },
   challenge: {
     flex: 1,
