@@ -9,6 +9,9 @@ import {
   Text,
 } from 'react-native';
 
+import {
+  BlockSize,
+} from './GlobalStyle';
 import Touchable from './Touchable';
 
 function formatTime(elapsed) {
@@ -17,8 +20,6 @@ function formatTime(elapsed) {
   const second = elapsed % 60;
   return [hour, minute, second].map(x => x < 10 ? '0' + x : x).join(':');
 }
-
-const CellSize = 15;
 
 class Puzzle extends Component {
   onPress = () => {
@@ -46,27 +47,27 @@ class Puzzle extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    width: CellSize * 9,
-    height: CellSize * 9,
-    marginHorizontal: CellSize / 2,
+    width: BlockSize * 9,
+    height: BlockSize * 9,
+    marginHorizontal: BlockSize / 2,
   },
   board: {
-    width: CellSize * 9,
-    height: CellSize * 9,
+    width: BlockSize * 9,
+    height: BlockSize * 9,
     flexDirection: 'row',
     flexWrap: 'wrap',
     backgroundColor: 'lightyellow',
   },
   cell: {
-    width: CellSize,
-    height: CellSize,
+    width: BlockSize,
+    height: BlockSize,
     backgroundColor: 'lightyellow',
   },
   timer: {
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: CellSize,
+    bottom: BlockSize,
   },
   timerText: {
     color: 'peru',
@@ -79,8 +80,8 @@ const styles = StyleSheet.create({
   },
   button: {
     position: 'absolute',
-    top: CellSize * 9 / 2 - 24,
-    left: CellSize * 9 / 2 - 24,
+    top: BlockSize * 9 / 2 - 24,
+    left: BlockSize * 9 / 2 - 24,
     width: 48,
     height: 48,
     borderRadius: 24,

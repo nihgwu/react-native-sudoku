@@ -24,6 +24,7 @@ import SplashScreen from 'rn-splash-screen';
 import {
   Size,
   CellSize,
+  BlockSize,
   BoardWidth,
 
   Board,
@@ -155,6 +156,7 @@ class Main extends Component {
                 <ScrollView 
                   horizontal={true} 
                   showsHorizontalScrollIndicator={false}
+                  snapToInterval={BlockSize * 10}
                   style={styles.challenge} 
                   contentContainerStyle={styles.challengeContainer} >
                   {showChallenge && this.records.map((item, idx) => (
@@ -686,7 +688,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   challengeContainer: {
-    paddingHorizontal: 10,
+    paddingHorizontal: BlockSize / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -3,6 +3,7 @@
 import {
   Size,
   CellSize,
+  BlockSize,
   BoardWidth,
   BorderWidth,
   Color,
@@ -16,6 +17,7 @@ import Touchable from './Touchable';
 export {
   Size,
   CellSize,
+  BlockSize,
   BoardWidth,
   BorderWidth,
   Color,
