@@ -138,19 +138,19 @@ class Main extends Component {
               {!showChallenge&&!showRecord&&<Text style={styles.title} >{I18n.t('name')}</Text>}
               <Touchable disabled={disabled} style={styles.button} onPress={this.onResume} >
                 <Image style={[styles.buttonIcon, disabled && styles.disabled]} source={require('../images/play.png')} />
-                <Text style={[styles.buttonText, disabled && styles.disabled]} >{I18n.t('continue')}</Text>
+                <Text numberOfLines={1} style={[styles.buttonText, disabled && styles.disabled]} >{I18n.t('continue')}</Text>
               </Touchable>
               <Touchable disabled={disabled} style={styles.button} onPress={this.onClear} >
                 <Image style={[styles.buttonIcon, disabled && styles.disabled]} source={require('../images/reload.png')} />
-                <Text style={[styles.buttonText, disabled && styles.disabled]} >{I18n.t('restart')}</Text>
+                <Text numberOfLines={1} style={[styles.buttonText, disabled && styles.disabled]} >{I18n.t('restart')}</Text>
               </Touchable>
               <Touchable style={styles.button} onPress={this.onCreate} >
                 <Image style={styles.buttonIcon} source={require('../images/shuffle.png')} />
-                <Text style={styles.buttonText} >{I18n.t('newgame')}</Text>
+                <Text numberOfLines={1} style={styles.buttonText} >{I18n.t('newgame')}</Text>
               </Touchable>
               <Touchable style={styles.button} onPress={this.onToggleChallenge} >
                 <Image style={styles.buttonIcon} source={require('../images/challenge.png')} />
-                <Text style={styles.buttonText} >{I18n.t('challenge')}</Text>
+                <Text numberOfLines={1} style={styles.buttonText} >{I18n.t('challenge')}</Text>
               </Touchable>
               <View style={{overflow: 'hidden', height: challengeHeight}} >
                 <ScrollView 
@@ -167,7 +167,7 @@ class Main extends Component {
               </View>
               <Touchable style={styles.button} onPress={this.onToggleRecord} >
                 <Image style={styles.buttonIcon} source={require('../images/rank.png')} />
-                <Text style={styles.buttonText} >{I18n.t('weekrank')}</Text>
+                <Text numberOfLines={1} style={styles.buttonText} >{I18n.t('weekrank')}</Text>
               </Touchable>
               <View style={{overflow: 'hidden', height: recordHeight}} >
                 <Touchable style={styles.record} onPress={this.onToggleRecord} >
@@ -674,11 +674,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: CellSize * 3 / 4,
     fontFamily: 'Menlo',
-    ...Platform.select({
+    ...(I18n.locale.startsWith('en') && Platform.select({
       android: {
-        width: CellSize * 4,
+        width: CellSize * 5,
       },
-    }),
+    })),
   },
   challenge: {
     flex: 1,
