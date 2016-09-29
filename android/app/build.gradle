@@ -90,7 +90,7 @@ android {
         applicationId "com.liteneo.sudoku"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 15
+        versionCode 16
         versionName "1.0.0"
         ndk {
             abiFilters "armeabi-v7a", "x86"
