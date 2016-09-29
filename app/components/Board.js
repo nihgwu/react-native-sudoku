@@ -129,7 +129,6 @@ class Board extends Component {
       this.props.onMove && this.props.onMove(index, number);
       this.movedStacks[number]++;
       this.cells[index].setNumber(number);
-      this.props.onMove && this.props.onMove();
       stack.setHide(true);
       this.puzzle[index] = number;
       if (this.puzzle.filter((item, idx) => item != null && toZ(idx) == z).length == 9) {
