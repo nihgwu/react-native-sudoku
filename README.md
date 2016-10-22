@@ -1,6 +1,6 @@
 # react-native-sudoku website
 
-> Landing page for the [Sudoku Master app](http://liteneo.com/sudoku)
+> Landing page for the [Sudoku Master app](http://sudoku.liteneo.com)
 
 modified from https://github.com/sindresorhus/blear
 
