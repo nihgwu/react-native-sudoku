@@ -131,13 +131,13 @@ p {
 		text-align: left;
 	}
 }
-
+/*
 .app-store-btn::before {
 	padding-right: 8px;
-	/*content: '';*/
+	content: '';
 	font-size: 16px;
 }
-
+*/
 .app-icon {
 	width: 90px;
 	margin: 0 auto;

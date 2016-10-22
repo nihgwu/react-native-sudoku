@@ -20,7 +20,7 @@
 					<h1>重拾纯粹数独的乐趣</h1>
 				</div>
 				<a class="primary-btn app-store-btn" href="https://itunes.apple.com/cn/app/id1138612488">App Store</a>
-				<a class="primary-btn app-store-btn" href="http://a.app.qq.com/o/simple.jsp?pkgname=com.liteneo.sudoku">ANDROID</a>
+				<a class="primary-btn play-store-btn" href="http://a.app.qq.com/o/simple.jsp?pkgname=com.liteneo.sudoku">ANDROID</a>
 			</div>
 			<div class="responsive iphone">
 				<div class="iphone-screenshot">
@@ -37,6 +37,14 @@
 			</div>
 		</footer>
 		<script>
+			(function() {
+				var ua = navigator.userAgent.toLowerCase();
+				var isWechat = ua.indexOf('micromessenger') != -1;
+				if(isWechat) {
+					var btn = document.getElementsByClassName('app-store-btn')[0];
+					btn.href='http://a.app.qq.com/o/simple.jsp?pkgname=com.liteneo.sudoku';
+				}
+			})();
 		</script>
 	</body>
 </html>
